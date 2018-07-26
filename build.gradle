@@ -1,8 +1,8 @@
 plugins {
     id 'java'
 }
-
-group 'ca.utoronto.ece.cimsah'
+apply plugin: 'maven'
+group 'com.github.danieldimatteo'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
