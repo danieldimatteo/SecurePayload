@@ -29,14 +29,14 @@ public class SecurePayload implements Serializable {
         cipherData = aesCipher.doFinal(plaintextData);
 
         // wrap (encrypt) session key with user's public key and save
-        Cipher rsaCipher = Cipher.getInstance("RSA");
-        rsaCipher.init(Cipher.ENCRYPT_MODE, publicKey);
-        encryptedSessionKey = rsaCipher.doFinal(sessionKey.getEncoded());
+        Cipher rsaCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        rsaCipher.init(Cipher.WRAP_MODE, publicKey);
+        encryptedSessionKey = rsaCipher.wrap(sessionKey);
     }
 
     public byte[] getPayload(PrivateKey privateKey) throws GeneralSecurityException {
         // unwrap the session key
-        Cipher rsaCipher = Cipher.getInstance("RSA");
+        Cipher rsaCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         rsaCipher.init(Cipher.UNWRAP_MODE, privateKey);
         Key sessionKey = rsaCipher.unwrap(encryptedSessionKey, "AES", Cipher.SECRET_KEY);
 

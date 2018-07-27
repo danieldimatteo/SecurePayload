@@ -6,38 +6,24 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.*;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 import static org.junit.Assert.*;
 
 public class SecurePayloadTest {
 
     @Test
-    public void testSmall() {
+    public void testSmall() throws GeneralSecurityException {
         final String expectedPlainText = "hello world!";
         final byte[] expectedBytes = expectedPlainText.getBytes(StandardCharsets.UTF_8);
 
-        KeyPairGenerator keyGen = null;
-        try {
-            keyGen = KeyPairGenerator.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            fail(e.getMessage());
-        }
-        keyGen.initialize(512);
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(1024);
         KeyPair keyPair = keyGen.generateKeyPair();
 
-        SecurePayload securePayload = null;
-        try {
-            securePayload = new SecurePayload(expectedBytes, keyPair.getPublic());
-        } catch (GeneralSecurityException e) {
-            fail(e.getMessage());
-        }
-
-        byte[] plainTextBytes = null;
-        try {
-            plainTextBytes = securePayload.getPayload(keyPair.getPrivate());
-        } catch (GeneralSecurityException e) {
-            fail(e.getMessage());
-        }
+        SecurePayload securePayload = new SecurePayload(expectedBytes, keyPair.getPublic());
+        byte[] plainTextBytes = securePayload.getPayload(keyPair.getPrivate());
 
         assertArrayEquals(expectedBytes, plainTextBytes);
 
@@ -46,37 +32,16 @@ public class SecurePayloadTest {
     }
 
     @Test
-    public void testBigTextFile() {
+    public void testBigTextFile() throws IOException, GeneralSecurityException {
         String path = this.getClass().getClassLoader().getResource("bigtext.txt").getPath();
-        byte[] expectedBytes = null;
-        try {
-            expectedBytes = Files.readAllBytes(Paths.get(path));
-        } catch (IOException e) {
-            fail(e.getMessage());
-        }
+        byte[] expectedBytes = Files.readAllBytes(Paths.get(path));;
 
-        KeyPairGenerator keyGen = null;
-        try {
-            keyGen = KeyPairGenerator.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            fail(e.getMessage());
-        }
-        keyGen.initialize(512);
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");;
+        keyGen.initialize(1024);
         KeyPair keyPair = keyGen.generateKeyPair();
 
-        SecurePayload securePayload = null;
-        try {
-            securePayload = new SecurePayload(expectedBytes, keyPair.getPublic());
-        } catch (GeneralSecurityException e) {
-            fail(e.getMessage());
-        }
-
-        byte[] plainTextBytes = null;
-        try {
-            plainTextBytes = securePayload.getPayload(keyPair.getPrivate());
-        } catch (GeneralSecurityException e) {
-            fail(e.getMessage());
-        }
+        SecurePayload securePayload = new SecurePayload(expectedBytes, keyPair.getPublic());;
+        byte[] plainTextBytes = securePayload.getPayload(keyPair.getPrivate());;
 
         assertArrayEquals(expectedBytes, plainTextBytes);
 
@@ -86,70 +51,54 @@ public class SecurePayloadTest {
     }
 
     @Test
-    public void testSerializingAudioFile() {
+    public void testSerializingAudioFile() throws IOException, GeneralSecurityException, ClassNotFoundException {
         String path = this.getClass().getClassLoader().getResource("quick_brown_fox.3gp").getPath();
-        byte[] expectedBytes = null;
-        try {
-            expectedBytes = Files.readAllBytes(Paths.get(path));
-        } catch (IOException e) {
-            fail(e.getMessage());
-        }
+        byte[] expectedBytes = Files.readAllBytes(Paths.get(path));;
 
-        KeyPairGenerator keyGen = null;
-        try {
-            keyGen = KeyPairGenerator.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            fail(e.getMessage());
-        }
-        keyGen.initialize(512);
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");;
+        keyGen.initialize(1024);
         KeyPair keyPair = keyGen.generateKeyPair();
 
-        SecurePayload clientSidePayload = null;
-        try {
-            clientSidePayload = new SecurePayload(expectedBytes, keyPair.getPublic());
-        } catch (GeneralSecurityException e) {
-            fail(e.getMessage());
-        }
+        SecurePayload clientSidePayload = new SecurePayload(expectedBytes, keyPair.getPublic());;
 
         // write to stream to simulate sending file from client to server
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(buffer);
-        } catch (IOException e) {
-            fail(e.getMessage());
-        }
-        try {
-            oos.writeObject(clientSidePayload);
-        } catch (IOException e) {
-            fail(e.getMessage());
-        }
+        ObjectOutputStream oos = new ObjectOutputStream(buffer);;
+        oos.writeObject(clientSidePayload);
 
         // read back out of stream to simulate receiving payload on server side
         ByteArrayInputStream bis = new ByteArrayInputStream(buffer.toByteArray());
-        ObjectInputStream ois = null;
-        try {
-            ois = new ObjectInputStream(bis);
-        } catch (IOException e) {
-            fail(e.getMessage());
-        }
+        ObjectInputStream ois = new ObjectInputStream(bis);
+        SecurePayload serverSidePayload = (SecurePayload) ois.readObject();
 
-        SecurePayload serverSidePayload = null;
-        try {
-            serverSidePayload = (SecurePayload) ois.readObject();
-        } catch (IOException e) {
-            fail(e.getMessage());
-        } catch (ClassNotFoundException e) {
-            fail(e.getMessage());
-        }
-
-        byte[] receivedBytes = null;
-        try {
-            receivedBytes = serverSidePayload.getPayload(keyPair.getPrivate());
-        } catch (GeneralSecurityException e) {
-            fail(e.getMessage());
-        }
+        byte[] receivedBytes = serverSidePayload.getPayload(keyPair.getPrivate());;
 
         assertArrayEquals(expectedBytes, receivedBytes);
+    }
+
+
+    @Test
+    public void testWithKeyPairSerialization() throws GeneralSecurityException {
+        final String expectedPlainText = "hello world!";
+        final byte[] expectedBytes = expectedPlainText.getBytes(StandardCharsets.UTF_8);
+
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(1024);
+        KeyPair keyPair = keyGen.generateKeyPair();
+
+        byte[] publicKeyBytes = keyPair.getPublic().getEncoded();
+        byte[] privateKeyBytes = keyPair.getPrivate().getEncoded();
+
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PublicKey publicKey = keyFactory.generatePublic(new X509EncodedKeySpec(publicKeyBytes));
+        PrivateKey privateKey = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
+
+        SecurePayload securePayload = new SecurePayload(expectedBytes, publicKey);
+        byte[] plainTextBytes = securePayload.getPayload(privateKey);
+
+        assertArrayEquals(expectedBytes, plainTextBytes);
+
+        final String plainText = new String(plainTextBytes, StandardCharsets.UTF_8);
+        assertEquals(expectedPlainText, plainText);
     }
 }
