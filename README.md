@@ -13,7 +13,11 @@ to unencrypt the cipher data to return back the unencrypted data.
 I use this class as a library to securely transmit data from an Android client app to a Java server application. Of course, 
 generation and exchange/transmission of the RSA keys must be handled yourself.
 
-Sample usage:
+## Installing
+SecurePayload can be added as a gradle or maven dependency, see instructions on link below:
+https://jitpack.io/#danieldimatteo/SecurePayload/v1.1
+
+## Sample usage:
 ```java
 // generate 1024-bit RSA key pair
 KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
