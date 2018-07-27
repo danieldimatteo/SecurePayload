@@ -26,12 +26,12 @@ byte[] bytesToEncrypt = Files.readAllBytes(Paths.get(path));
 SecurePayload clientSidePayload = new SecurePayload(bytesToEncrypt, keyPair.getPublic());
 
 // write SecurePayload to stream to simulate sending file from client to server 
-ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+ByteArrayOutputStream buffer = new ByteArrayOutputStream(); // this can be a FileOutputStream to write to file
 ObjectOutputStream oos = new ObjectOutputStream(buffer);
 oos.writeObject(clientSidePayload);
 
 // read back out of stream to simulate receiving payload on server side
-ByteArrayInputStream bis = new ByteArrayInputStream(buffer.toByteArray());
+ByteArrayInputStream bis = new ByteArrayInputStream(buffer.toByteArray()); // this can be a FileInputStream to read from file
 ObjectInputStream ois = new ObjectInputStream(bis);
 SecurePayload serverSidePayload = (SecurePayload) ois.readObject();
 
