@@ -34,14 +34,14 @@ public class SecurePayloadTest {
     @Test
     public void testBigTextFile() throws IOException, GeneralSecurityException {
         String path = this.getClass().getClassLoader().getResource("bigtext.txt").getPath();
-        byte[] expectedBytes = Files.readAllBytes(Paths.get(path));;
+        byte[] expectedBytes = Files.readAllBytes(Paths.get(path));
 
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");;
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(1024);
         KeyPair keyPair = keyGen.generateKeyPair();
 
-        SecurePayload securePayload = new SecurePayload(expectedBytes, keyPair.getPublic());;
-        byte[] plainTextBytes = securePayload.getPayload(keyPair.getPrivate());;
+        SecurePayload securePayload = new SecurePayload(expectedBytes, keyPair.getPublic());
+        byte[] plainTextBytes = securePayload.getPayload(keyPair.getPrivate());
 
         assertArrayEquals(expectedBytes, plainTextBytes);
 
@@ -53,17 +53,17 @@ public class SecurePayloadTest {
     @Test
     public void testSerializingAudioFile() throws IOException, GeneralSecurityException, ClassNotFoundException {
         String path = this.getClass().getClassLoader().getResource("quick_brown_fox.3gp").getPath();
-        byte[] expectedBytes = Files.readAllBytes(Paths.get(path));;
+        byte[] expectedBytes = Files.readAllBytes(Paths.get(path));
 
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");;
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(1024);
         KeyPair keyPair = keyGen.generateKeyPair();
 
-        SecurePayload clientSidePayload = new SecurePayload(expectedBytes, keyPair.getPublic());;
+        SecurePayload clientSidePayload = new SecurePayload(expectedBytes, keyPair.getPublic());
 
         // write to stream to simulate sending file from client to server
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(buffer);;
+        ObjectOutputStream oos = new ObjectOutputStream(buffer);
         oos.writeObject(clientSidePayload);
 
         // read back out of stream to simulate receiving payload on server side
@@ -71,7 +71,7 @@ public class SecurePayloadTest {
         ObjectInputStream ois = new ObjectInputStream(bis);
         SecurePayload serverSidePayload = (SecurePayload) ois.readObject();
 
-        byte[] receivedBytes = serverSidePayload.getPayload(keyPair.getPrivate());;
+        byte[] receivedBytes = serverSidePayload.getPayload(keyPair.getPrivate());
 
         assertArrayEquals(expectedBytes, receivedBytes);
     }
