@@ -1,9 +1,9 @@
 # SecurePayload
 
-This is a simple class to enable encryption and decryption of data (of an arbitrary length) using public-key (asymmetric) 
+This is a simple class to enable encryption and decryption of data (of arbitrary length) using public-key (asymmetric) 
 cryptography. I use this class as a library to securely transmit data from an Android client app to a Java server application.
 
-Under the hood it works similarly to PGP. he supplied data is encrypted using a one-time session key (128-bit AES key in CBC mode). 
+Under the hood it works similarly to PGP. The supplied data is encrypted using a one-time session key (128-bit AES key in CBC mode). 
 This session key is then encrypted using the user-supplied RSA private key (ECB mode) and packed together with the encrypted data. 
 This object can hen be safely transported to a destination through any serialization mechanism. 
 
